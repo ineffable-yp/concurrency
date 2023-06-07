@@ -102,6 +102,10 @@ void thrdpool_destroy(void(*pending)(const thrdpool_task*), threadpool_t* pool)
 	struct list_head* pos, * tmp;
 	
 	__thrdpool_terminate(pool);
+
+	// for (pos = (&pool->task_queue)->next,tmp = pos->next; pos != (&pool->task_queue);
+	//	pos = tmp,tmp = pos->next)
+	
 	list_for_each_safe(pos,tmp,&pool->task_queue)
 	{
 		entry = list_entry(pos, __thrdpool_task_entry, list);
