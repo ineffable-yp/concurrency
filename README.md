@@ -1,7 +1,2 @@
-echo "# concurrency" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/ineffable-yp/concurrency.git
-git push -u origin main
+>并发|异步<br>
+>期望 ,测试demo代码<br>
