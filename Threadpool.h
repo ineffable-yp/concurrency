@@ -5,6 +5,7 @@
 #include <thread>
 #include <condition_variable>
 #include <set>
+#include <functional>
 #include <vector>
 #include "list.h"
 
@@ -20,7 +21,8 @@ struct threadpool_t
 
 struct thrdpool_task
 {
-	void (*routine)(void*);
+	std::function<void(void*)> routine;
+	//void (*routine)(void*);
 	void* context;
 };
 
