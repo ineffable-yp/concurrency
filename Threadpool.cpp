@@ -96,7 +96,7 @@ void __thrdpool_terminate(threadpool_t * pool)
 	}
 }
 
-void thrdpool_destroy(void(*pending)(const thrdpool_task*), threadpool_t* pool)
+void thrdpool_destroy(std::function<void(const struct thrdpool_task*)> const &pending, threadpool_t* pool)
 {
 	__thrdpool_task_entry* entry;
 	struct list_head* pos, * tmp;
