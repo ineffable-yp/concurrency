@@ -20,12 +20,12 @@ class function_wrapper
 	};
 public:
 	template<typename F>
-	function_wrapper(F&& f) :
-	impl(new impl_type<F>(std::move(f)))
+	function_wrapper(F&& f) :impl(new impl_type<F>(std::move(f)))
 	{}
+
 	void operator()() { impl->call(); }
 	function_wrapper() = default;
-	function_wrapper(function_wrapper && other) :
+	function_wrapper(function_wrapper&& other) :
 		impl(std::move(other.impl))
 	{}
 	function_wrapper& operator=(function_wrapper&& other)
@@ -71,7 +71,7 @@ class thread_pool
 {
 	std::atomic_bool done;
 	thread_safe_queue<function_wrapper> work_queue; // 使用function_wrapper，而非使用std:
-	
+
 	void worker_thread()
 	{
 		while (!done)
@@ -100,3 +100,32 @@ public:
 		return res; // 6
 	}
 };
+
+template<typename Iterator, typename T>
+T parallel_accumulate(Iterator first, Iterator last, T init)
+{
+	unsigned long const length = std::distance(first, last);
+	if (!length)
+		return init;
+	unsigned long const block_size = 25;
+	unsigned long const num_blocks = (length + block_size - 1) / block_size; // 1
+	std::vector<std::future<T> > futures(num_blocks - 1);
+	thread_pool pool;
+	Iterator block_start = first;
+	for (unsigned long i = 0; i < (num_blocks - 1); ++i)
+	{
+		Iterator block_end = block_start;
+		std::advance(block_end, block_size);
+		futures[i] = pool.submit(accumulate_block<Iterator, T>()); // 2
+		block_start = block_end;
+	}
+	T last_result = accumulate_block<Iterator, T>()(block_start, last);
+	T result = init;
+	for (unsigned long i = 0; i < (num_blocks - 1); ++i)
+	{
+		result += futures[i].get();
+	}
+	result += last_result;
+	return result;
+}
+
