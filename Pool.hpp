@@ -102,6 +102,14 @@ public:
 };
 
 template<typename Iterator, typename T>
+struct accumulate_block {
+	void operator()(Iterator first, Iterator last, T& result) {
+		//每个子序列累加，不能通过线程的返回值返回累加结果，而是通过一个result引用将结果返回给主线程
+		result = std::accumulate(first, last, result);
+	}
+};
+
+template<typename Iterator, typename T>
 T parallel_accumulate(Iterator first, Iterator last, T init)
 {
 	unsigned long const length = std::distance(first, last);
